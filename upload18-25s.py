@@ -400,28 +400,7 @@ def main_program_loop():
             else:
                 print("keys not found!") 
 
-        if is_unlockable.get():
-            #Unlockable Content toggle
-            wait_xpath('//*[@id="unlockable-content-toggle"]')
-            toggle_unlockable = driver.find_element(By.XPATH,'//*[@id="unlockable-content-toggle"]')
-            toggle_unlockable.location_once_scrolled_into_view
-            driver.execute_script("return arguments[0].click();", toggle_unlockable)
-            time.sleep(0.8)
-
-            #Unlockable Content input
-            toggle_unlockable.send_keys(Keys.TAB)
-            wait_xpath('/html/body/div[1]/div/main/div/div/section/div[2]/form/section/div[4]/div[2]/textarea')
-            unlockable_content = driver.find_element_by_xpath('/html/body/div[1]/div/main/div/div/section/div[2]/form/section/div[4]/div[2]/textarea')
-            unlockable_content.send_keys(str("testing content here"))
-            time.sleep(0.8)
-        
-        if is_sensitivecontent.get():
-            #Explicit & Sensitive toggle
-            wait_xpath('//*[@id="explicit-content-toggle"]')
-            toggle_sensivity = driver.find_element(By.XPATH,'//*[@id="explicit-content-toggle"]')
-            # toggle_sensivity.location_once_scrolled_into_view
-            driver.execute_script("return arguments[0].click();", toggle_sensivity)
-            time.sleep(0.8)
+       
 
         # Select Polygon blockchain if applicable
         wait_xpath('//*[@id="chain"]')
@@ -628,8 +607,8 @@ tk.Radiobutton(duration_date, text="180 days", variable=duration_value, value=18
 duration_date.label = Label(root, text="Duration:", anchor="nw", width=20, height=3 )
 duration_date.label.grid(row=15, column=0, padx=12, pady=2)
 
-isSensitive = tkinter.Checkbutton(root, text='Sensitive Content', var=is_sensitivecontent,   width=49, anchor="w")
-isSensitive.grid(row=17, column=1)
+# isSensitive = tkinter.Checkbutton(root, text='Sensitive Content', var=is_sensitivecontent,   width=49, anchor="w")
+# isSensitive.grid(row=17, column=1)
 # isnumFormat = tkinter.Checkbutton(root, text='Number format 0001 ~ 99999', var=is_numformat,   width=49, anchor="w")
 # isnumFormat.grid(row=18, column=1)
 isCreate = tkinter.Checkbutton(root, text='Complete Listing', var=is_listing, width=49, anchor="w")
