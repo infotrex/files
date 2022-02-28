@@ -33,7 +33,7 @@ from datetime import timedelta, date
 import locale
 import json 
 import ssl
-#from fake_useragent import UserAgent
+from fake_useragent import UserAgent
 from random import uniform, randint
 
 
@@ -431,31 +431,9 @@ def main_program_loop():
         
         
         #Ethereum = Rinkeby / Polygon = Mumbai
-        if is_polygon.get():
+        # if is_polygon.get():
           
-            if (default_blockchain != 'Polygon' and default_blockchain != 'Mumbai'):
-                
-                blockchain_button = driver.find_element(By.XPATH, '//*[@id="__next"]/div[1]/main/div/div/section/div/form/div[7]/div/div[2]')
-                blockchain_button.click()
-                polygon_button_location = '//span[normalize-space() = "Mumbai"]' or '//span[normalize-space() = "Polygon"]'
-                wait.until(ExpectedConditions.presence_of_element_located(
-                    (By.XPATH, polygon_button_location)))
-                polygon_button = driver.find_element(
-                    By.XPATH, polygon_button_location)
-                polygon_button.click()
-
-        else:
- 
-            if (default_blockchain != 'Ethereum' and default_blockchain != 'Rinkeby'):
-   
-                blockchain_button = driver.find_element(By.XPATH, '//*[@id="__next"]/div[1]/main/div/div/section/div/form/div[7]/div/div[2]')
-                blockchain_button.click()
-                ethereum_button_location = '//span[normalize-space() = "Rinkeby"]' or '//span[normalize-space() = "Ethereum"]'
-                wait.until(ExpectedConditions.presence_of_element_located(
-                    (By.XPATH, ethereum_button_location)))
-                ethereum_button = driver.find_element(
-                    By.XPATH, ethereum_button_location)
-                ethereum_button.click()
+           
   
         #time.sleep(50)
        
@@ -626,12 +604,12 @@ def main_program_loop():
 unlockable_value = IntVar()
 unlockable_value.set(value=180)
 
-unlockable_content = Frame(root, padx=0, pady=1)
-unlockable_content.grid(row=11, column=1)
-unlockable_content.label = Label(root, text="Unlockable Content:", anchor="nw", width=20, height=5 )
-tk.Checkbutton(unlockable_content, text='Yes', var=is_unlockable, width=58, anchor="w", command=save_unlockable).grid(row=0, column=1)
-tk.Text(unlockable_content, width=48, height=3).grid(row=1, column=1, columnspan=2,pady=10)
-unlockable_content.label.grid(row=11, column=0, padx=12, pady=2)
+# unlockable_content = Frame(root, padx=0, pady=1)
+# unlockable_content.grid(row=11, column=1)
+# unlockable_content.label = Label(root, text="Unlockable Content:", anchor="nw", width=20, height=5 )
+# tk.Checkbutton(unlockable_content, text='Yes', var=is_unlockable, width=58, anchor="w", command=save_unlockable).grid(row=0, column=1)
+# tk.Text(unlockable_content, width=48, height=3).grid(row=1, column=1, columnspan=2,pady=10)
+# unlockable_content.label.grid(row=11, column=0, padx=12, pady=2)
 
 
 duration_value = IntVar()
@@ -656,7 +634,7 @@ isSensitive.grid(row=17, column=1)
 # isnumFormat.grid(row=18, column=1)
 isCreate = tkinter.Checkbutton(root, text='Complete Listing', var=is_listing, width=49, anchor="w")
 isCreate.grid(row=19, column=1)
-isPolygon = tkinter.Checkbutton(root, text='Polygon Blockchain (Polygon to Eth blockchain)',  var=is_polygon, width=49, anchor="w")
+isPolygon = tkinter.Checkbutton(root, text='Polygon Blockchain',  var=is_polygon, width=49, anchor="w")
 isPolygon.grid(row=20, column=1)
 upload_folder_input_button = tkinter.Button(root, width=50, height=1,  text="Add NFTs Upload Folder", command=upload_folder_input)
 upload_folder_input_button.grid(row=21, column=1, padx=2)
