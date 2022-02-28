@@ -33,7 +33,7 @@ from datetime import timedelta, date
 import locale
 import json 
 import ssl
-from fake_useragent import UserAgent
+#from fake_useragent import UserAgent
 from random import uniform, randint
 
 
