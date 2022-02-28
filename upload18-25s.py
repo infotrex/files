@@ -88,11 +88,6 @@ is_listing.set(True)
 is_numformat = BooleanVar()
 is_numformat.set(False) 
 
-is_unlockable = BooleanVar()
-is_unlockable.set(False) 
-
-is_sensitivecontent = BooleanVar()
-is_sensitivecontent.set(True) 
 
 
 
@@ -142,10 +137,6 @@ def save_duration():
     duration_value.set(value=duration_value.get())
     # print(duration_value.get())
 
-
-def save_unlockable():
-    unlockable_value.set(value=unlockable_value.get())
-    # print(duration_value.get())
 
 
 def open_chrome_profile():
@@ -400,8 +391,7 @@ def main_program_loop():
             else:
                 print("keys not found!") 
 
-       
-
+     
         # Select Polygon blockchain if applicable
         wait_xpath('//*[@id="chain"]')
         default_blockchain = driver.find_element(By.ID, "chain").get_attribute("value")
@@ -583,12 +573,7 @@ def main_program_loop():
 unlockable_value = IntVar()
 unlockable_value.set(value=180)
 
-# unlockable_content = Frame(root, padx=0, pady=1)
-# unlockable_content.grid(row=11, column=1)
-# unlockable_content.label = Label(root, text="Unlockable Content:", anchor="nw", width=20, height=5 )
-# tk.Checkbutton(unlockable_content, text='Yes', var=is_unlockable, width=58, anchor="w", command=save_unlockable).grid(row=0, column=1)
-# tk.Text(unlockable_content, width=48, height=3).grid(row=1, column=1, columnspan=2,pady=10)
-# unlockable_content.label.grid(row=11, column=0, padx=12, pady=2)
+
 
 
 duration_value = IntVar()
@@ -607,10 +592,7 @@ tk.Radiobutton(duration_date, text="180 days", variable=duration_value, value=18
 duration_date.label = Label(root, text="Duration:", anchor="nw", width=20, height=3 )
 duration_date.label.grid(row=15, column=0, padx=12, pady=2)
 
-# isSensitive = tkinter.Checkbutton(root, text='Sensitive Content', var=is_sensitivecontent,   width=49, anchor="w")
-# isSensitive.grid(row=17, column=1)
-# isnumFormat = tkinter.Checkbutton(root, text='Number format 0001 ~ 99999', var=is_numformat,   width=49, anchor="w")
-# isnumFormat.grid(row=18, column=1)
+
 isCreate = tkinter.Checkbutton(root, text='Complete Listing', var=is_listing, width=49, anchor="w")
 isCreate.grid(row=19, column=1)
 isPolygon = tkinter.Checkbutton(root, text='Polygon Blockchain',  var=is_polygon, width=49, anchor="w")
