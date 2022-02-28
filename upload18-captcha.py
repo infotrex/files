@@ -137,11 +137,6 @@ is_listing.set(True)
 is_numformat = BooleanVar()
 is_numformat.set(False) 
 
-is_unlockable = BooleanVar()
-is_unlockable.set(False) 
-
-is_sensitivecontent = BooleanVar()
-is_sensitivecontent.set(True) 
 
 
 def save_duration():
@@ -149,9 +144,6 @@ def save_duration():
     # print(duration_value.get())
 
 
-def save_unlockable():
-    unlockable_value.set(value=unlockable_value.get())
-    # print(duration_value.get())
 
 
 def open_chrome_profile():
@@ -415,63 +407,17 @@ def main_program_loop():
             else:
                 print("keys not found!") 
 
-        if is_unlockable.get():
-            #Unlockable Content toggle
-            wait_xpath('//*[@id="unlockable-content-toggle"]')
-            toggle_unlockable = driver.find_element(By.XPATH,'//*[@id="unlockable-content-toggle"]')
-            toggle_unlockable.location_once_scrolled_into_view
-            driver.execute_script("return arguments[0].click();", toggle_unlockable)
-            time.sleep(1.1)
-
-            #Unlockable Content input
-            toggle_unlockable.send_keys(Keys.TAB)
-            wait_xpath('/html/body/div[1]/div/main/div/div/section/div[2]/form/section/div[4]/div[2]/textarea')
-            unlockable_content = driver.find_element_by_xpath('/html/body/div[1]/div/main/div/div/section/div[2]/form/section/div[4]/div[2]/textarea')
-            unlockable_content.send_keys(str("testing content here"))
-            time.sleep(1.1)
-        
-        if is_sensitivecontent.get():
-            #Explicit & Sensitive toggle
-            wait_xpath('//*[@id="explicit-content-toggle"]')
-            toggle_sensivity = driver.find_element(By.XPATH,'//*[@id="explicit-content-toggle"]')
-            # toggle_sensivity.location_once_scrolled_into_view
-            driver.execute_script("return arguments[0].click();", toggle_sensivity)
-            time.sleep(1.1)
+      
 
         # Select Polygon blockchain if applicable
         wait_xpath('//*[@id="chain"]')
         default_blockchain = driver.find_element(By.ID, "chain").get_attribute("value")
         print(default_blockchain)
 
-        
-        
+
         #Ethereum = Rinkeby / Polygon = Mumbai
         if is_polygon.get():
-          
-            if (default_blockchain != 'Polygon' and default_blockchain != 'Mumbai'):
-                
-                blockchain_button = driver.find_element(By.XPATH, '//*[@id="__next"]/div[1]/main/div/div/section/div/form/div[7]/div/div[2]')
-                blockchain_button.click()
-                polygon_button_location = '//span[normalize-space() = "Mumbai"]' or '//span[normalize-space() = "Polygon"]'
-                wait.until(ExpectedConditions.presence_of_element_located(
-                    (By.XPATH, polygon_button_location)))
-                polygon_button = driver.find_element(
-                    By.XPATH, polygon_button_location)
-                polygon_button.click()
-
-        else:
- 
-            if (default_blockchain != 'Ethereum' and default_blockchain != 'Rinkeby'):
-   
-                blockchain_button = driver.find_element(By.XPATH, '//*[@id="__next"]/div[1]/main/div/div/section/div/form/div[7]/div/div[2]')
-                blockchain_button.click()
-                ethereum_button_location = '//span[normalize-space() = "Rinkeby"]' or '//span[normalize-space() = "Ethereum"]'
-                wait.until(ExpectedConditions.presence_of_element_located(
-                    (By.XPATH, ethereum_button_location)))
-                ethereum_button = driver.find_element(
-                    By.XPATH, ethereum_button_location)
-                ethereum_button.click()
-  
+          print("polygon")
 
         create = driver.find_element(By.XPATH, '//*[@id="__next"]/div[1]/main/div/div/section/div[2]/form/div/div[1]/span/button')
         driver.execute_script("arguments[0].click();", create)
@@ -660,15 +606,6 @@ def main_program_loop():
     
     driver.get("https://www.opensea.io")
     
-unlockable_value = IntVar()
-unlockable_value.set(value=180)
-
-unlockable_content = Frame(root, padx=0, pady=1)
-unlockable_content.grid(row=11, column=1)
-unlockable_content.label = Label(root, text="Unlockable Content:", anchor="nw", width=20, height=5 )
-tk.Checkbutton(unlockable_content, text='Yes', var=is_unlockable, width=58, anchor="w", command=save_unlockable).grid(row=0, column=1)
-tk.Text(unlockable_content, width=48, height=3).grid(row=1, column=1, columnspan=2,pady=10)
-unlockable_content.label.grid(row=11, column=0, padx=12, pady=2)
 
 
 duration_value = IntVar()
@@ -687,13 +624,10 @@ tk.Radiobutton(duration_date, text="180 days", variable=duration_value, value=18
 duration_date.label = Label(root, text="Duration:", anchor="nw", width=20, height=3 )
 duration_date.label.grid(row=15, column=0, padx=12, pady=2)
 
-isSensitive = tkinter.Checkbutton(root, text='Sensitive Content', var=is_sensitivecontent,   width=49, anchor="w")
-isSensitive.grid(row=17, column=1)
-# isnumFormat = tkinter.Checkbutton(root, text='Number format 0001 ~ 99999', var=is_numformat,   width=49, anchor="w")
-# isnumFormat.grid(row=18, column=1)
+
 isCreate = tkinter.Checkbutton(root, text='Complete Listing', var=is_listing, width=49, anchor="w")
 isCreate.grid(row=19, column=1)
-isPolygon = tkinter.Checkbutton(root, text='Polygon Blockchain (Polygon to Eth blockchain)',  var=is_polygon, width=49, anchor="w")
+isPolygon = tkinter.Checkbutton(root, text='Polygon Blockchain',  var=is_polygon, width=49, anchor="w")
 isPolygon.grid(row=20, column=1)
 upload_folder_input_button = tkinter.Button(root, width=50, height=1,  text="Add NFTs Upload Folder", command=upload_folder_input)
 upload_folder_input_button.grid(row=21, column=1, padx=2)
