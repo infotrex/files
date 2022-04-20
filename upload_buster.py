@@ -23,6 +23,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support import expected_conditions as ExpectedConditions
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support.ui import Select
@@ -34,7 +35,7 @@ import locale
 import json 
 import ssl
 import random
-
+from fake_useragent import UserAgent
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -43,9 +44,9 @@ locale.setlocale(locale.LC_ALL, '')
 lastdate = date(date.today().year, 12, 31)
 
 root = Tk()
-root.geometry('750x850')
+root.geometry('750x800')
 root.resizable(False, False)
-root.title("NFTs Upload to OpenSea v1.8.9")
+root.title("NFTs Upload to OpenSea v1.9.1")
   
 input_save_list = ["NFTs folder :", 0, 0, 0, 0, 0, 0, 0, 0, 0]
 main_directory = os.path.join(sys.path[0])
@@ -83,6 +84,9 @@ is_listing.set(True)
 is_numformat = BooleanVar()
 is_numformat.set(False) 
 
+is_unlockable = BooleanVar()
+is_unlockable.set(False) 
+
 is_sensitivecontent = BooleanVar()
 is_sensitivecontent.set(False) 
 
@@ -90,6 +94,10 @@ def save_duration():
     duration_value.set(value=duration_value.get())
     # print(duration_value.get())
 
+def save_unlockable():
+    unlockable_value.set(value=unlockable_value.get())
+    # print(duration_value.get())
+    
 def open_chrome_profile():
     subprocess.Popen(
         [
@@ -97,6 +105,9 @@ def open_chrome_profile():
             "chrome",
             "--remote-debugging-port=8989",
             "--user-data-dir=" + main_directory + "/chrome_profile",
+            #"--user-data-dir=C:\\Users\\kelvin\\AppData\\Local\\Google\\Chrome\\User Data",
+            # "--profile-directory=Default"
+
         ],
         shell=True,
     )
@@ -174,15 +185,15 @@ class InputField:
         
 
 ###input objects###
-collection_link_input = InputField("OpenSea Collection Link:", 2, 0, 1)
-start_num_input = InputField("Start Number:", 3, 0, 2)
-end_num_input = InputField("End Number:", 4, 0, 3)
-price = InputField("Default Price:", 5, 0, 4)
-title = InputField("Title:", 6, 0, 5)
-description = InputField("Description:", 7, 0, 6)
-file_format = InputField("NFT Image Format:", 8, 0, 7)
-external_link = InputField("External link:", 9, 0, 8)
-
+collection_link_input = InputField("OpenSea Collection Link:", 2, 0, 1, 0)
+start_num_input = InputField("Start Number:", 3, 0, 2, 0)
+end_num_input = InputField("End Number:", 4, 0, 3, 0)
+price = InputField("Default Price:", 5, 0, 4, 0)
+title = InputField("Title:", 6, 0, 5, 0)
+description = InputField("Description:", 7, 0, 6, 0)
+file_format = InputField("NFT Image Format:", 8, 0, 7, 0)
+external_link = InputField("External link:", 9, 0, 8, 0)
+external_link = InputField("External link:", 9, 0, 8, 0)
 
 def save():
 
@@ -232,11 +243,17 @@ def main_program_loop():
 
 
     ##chromeoptions
-    opt = Options()
-    opt.add_argument("--disable-blink-features=AutomationControlled")
-    opt.add_experimental_option("debuggerAddress", "localhost:8989")
-    driver = webdriver.Chrome(executable_path=project_path + "/chromedriver.exe",options=opt)
-    # driver = webdriver.Chrome( service=Service(project_path + "/chromedriver.exe"), options=opt )
+    options = webdriver.ChromeOptions()
+    options.add_argument("--disable-blink-features=AutomationControlled")
+    options.add_experimental_option("debuggerAddress", "localhost:8989")
+    # ua = UserAgent()
+    # userAgent = ua.random
+    # print(userAgent)
+    # options.add_argument(f'user-agent={userAgent}')
+    # driver = webdriver.Chrome(executable_path=project_path + "/chromedriver.exe",options=options)
+    driver = webdriver.Chrome(service=Service(project_path + "/chromedriver.exe"), options=options )
+    #driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    #driver = webdriver.Chrome(executable_path='C:\Program Files (x86)\Google\Chrome\Application\chrome.exe',options=options)
     wait = WebDriverWait(driver, 60)
 
     ###wait for methods
@@ -268,8 +285,38 @@ def main_program_loop():
     def delay(waiting_time=10):
             driver.implicitly_wait(waiting_time)
 
-    randomnumber1 = random.uniform(0.95, 1.55)
-    randomnumber2 = random.uniform(2.55, 3.55)
+    def twocaptcha_bypass():
+        delay()
+        solved_info = WebDriverWait(driver, 30).until(ExpectedConditions.presence_of_element_located((By.XPATH, "//*[@class='captcha-solver-info']" )))
+        # solved_status = WebDriverWait(driver, 10).until(ExpectedConditions.presence_of_element_located((By.XPATH, "//*[@class='captcha-solver-info']" ))).get_attribute("innerHTML")
+        # print(str(solved_status))
+        wait_xpath("//div[@class='captcha-solver']")
+        captcha_solver_button = driver.find_element(By.XPATH, "//div[@class='captcha-solver']")
+        driver.execute_script("arguments[0].click();", captcha_solver_button)
+        time.sleep(sleeptime)
+        WebDriverWait(driver, 60).until(ExpectedConditions.presence_of_element_located((By.XPATH, "//*[@data-state='solving']" )))
+        print("solving")
+        WebDriverWait(driver, 300).until(ExpectedConditions.presence_of_element_located((By.XPATH, "//*[@data-state='solved']")))
+        print("solved")
+    
+    def buster_bypass():
+        try:
+            # capt_btn = WebDriverWait(driver, 50).until(ExpectedConditions.element_to_be_clickable((By.XPATH ,'//*[@id="recaptcha-audio-button"]')))
+            wait_xpath('/html/body/div[1]/div/div[3]/div[2]/div[1]/div[1]/div[4]')
+            capt_btn = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[3]/div[2]/div[1]/div[1]/div[4]')
+            # capt_btn.click()
+            webdriver.ActionChains(driver).click(capt_btn).perform()
+            time.sleep(sleeptime)
+        except:
+            capt_btn = WebDriverWait(driver, 20).until(ExpectedConditions.element_to_be_clickable((By.XPATH ,'//*[@id="solver-button"]')))
+            # capt_btn = driver.find_element_by_xpath("//button[@id='solver-button']")
+            driver.execute_script("arguments[0].click();", capt_btn)
+            # webdriver.ActionChains(driver).click(capt_btn).perform()
+            time.sleep(sleeptime)
+
+
+    randomnumber1 = random.uniform(0.7, 0.99)
+    randomnumber2 = random.uniform(2.11, 2.88)
     sleeptime = random.uniform(randomnumber1, randomnumber2)
 
     while end_num >= start_num:
@@ -289,14 +336,24 @@ def main_program_loop():
         imageUpload.send_keys(imagePath)
         time.sleep(sleeptime)
 
+        # if loop_file_format.lower() != "png" or loop_file_format.lower() != "jpg" or loop_file_format.lower() != "svg" or loop_file_format.lower() != "gif" :
+        #     wait.until(ExpectedConditions.presence_of_element_located((By.NAME, 'preview')))
+        #     imageUpload_preview = driver.find_element(By.NAME, 'preview')
+        #     imageUpload_path = os.path.abspath(file_path + "\\images\\" + str(start_numformat) + ".png")  # change folder here
+        #     imageUpload_preview.send_keys(imageUpload_path)
+        #     time.sleep(sleeptime)
+
+        wait_xpath('//*[@id="name"]')
         name = driver.find_element(By.XPATH, '//*[@id="name"]')
         name.send_keys(loop_title + str(start_numformat))  # +1000 for other folders #change name before "#"
         time.sleep(sleeptime)
 
+        wait_xpath('//*[@id="external_link"]')
         ext_link = driver.find_element(By.XPATH, '//*[@id="external_link"]')
         ext_link.send_keys(loop_external_link)
         time.sleep(sleeptime)
 
+        wait_xpath('//*[@id="description"]')
         desc = driver.find_element(By.XPATH, '//*[@id="description"]')
         desc.send_keys(loop_description)
         time.sleep(sleeptime)
@@ -375,9 +432,30 @@ def main_program_loop():
 
 
         if is_polygon.get():
-            pass
+            
+            if (default_blockchain != 'Polygon' and default_blockchain != 'Mumbai'):
+                    
+                blockchain_button = driver.find_element(By.XPATH, '//*[@id="__next"]/div[1]/main/div/div/section/div/form/div[7]/div/div[2]')
+                driver.execute_script("arguments[0].scrollIntoView();", blockchain_button)
+                blockchain_button.click()
+                polygon_button_location = '//span[normalize-space() = "Mumbai"]' and '//span[normalize-space() = "Polygon"]'
+                wait.until(ExpectedConditions.presence_of_element_located((By.XPATH, polygon_button_location)))
+                polygon_button = driver.find_element(By.XPATH, polygon_button_location)
+                polygon_button.click()
 
+        else:
+    
+            if (default_blockchain != 'Ethereum' and default_blockchain != 'Rinkeby'):
+                
+                blockchain_button = driver.find_element(By.XPATH, '//*[@id="__next"]/div[1]/main/div/div/section/div/form/div[7]/div/div[2]')
+                driver.execute_script("arguments[0].scrollIntoView();", blockchain_button)
+                blockchain_button.click()
+                ethereum_button_location = '//span[normalize-space() = "Rinkeby"]' and '//span[normalize-space() = "Ethereum"]'
+                wait.until(ExpectedConditions.presence_of_element_located((By.XPATH, ethereum_button_location)))
+                ethereum_button = driver.find_element(By.XPATH, ethereum_button_location)
+                ethereum_button.click()
 
+        
         create = driver.find_element(By.XPATH, '//*[@id="__next"]/div[1]/main/div/div/section/div[2]/form/div/div[1]/span/button')
         driver.execute_script("arguments[0].click();", create)
         time.sleep(sleeptime)
@@ -394,8 +472,9 @@ def main_program_loop():
                 driver.switch_to.frame(iframes[0])
 
                 try:
-                    checkbox_button = WebDriverWait(driver, 10).until(ExpectedConditions.element_to_be_clickable((By.ID ,"recaptcha-anchor")))
+                    checkbox_button = WebDriverWait(driver, 30).until(ExpectedConditions.element_to_be_clickable((By.ID ,"recaptcha-anchor")))
                     checkbox_button.click()
+                    # webdriver.ActionChains(driver).click(checkbox_button).perform()
                 except:
                     pass
                 
@@ -403,61 +482,135 @@ def main_program_loop():
                 # driver.switch_to.frame(iframes[-1])
 
                 # click on audio challenge
-                WebDriverWait(driver, 10).until(ExpectedConditions.frame_to_be_available_and_switch_to_it((By.CSS_SELECTOR,"iframe[title='recaptcha challenge expires in two minutes']")))
+                WebDriverWait(driver, 30).until(ExpectedConditions.frame_to_be_available_and_switch_to_it((By.CSS_SELECTOR,"iframe[title='recaptcha challenge expires in two minutes']")))
+                time.sleep(1)
+                
+                buster_bypass()
+
+                try:
+                
+                    time.sleep(3)
+                    audio_input = driver.find_element(By.ID, "audio-response").get_attribute('value')
+                    if audio_input == "":
+                        print("empty")
+                        # WebDriverWait(driver, 30).until(ExpectedConditions.frame_to_be_available_and_switch_to_it((By.CSS_SELECTOR,"iframe[title='recaptcha challenge expires in two minutes']")))
+                        # time.sleep(1)
+                        try:
+                        #     delay()
+                        #     reset_buster_btn = driver.find_element(By.XPATH,"//*[@id='recaptcha-reload-button']")
+                        #     driver.execute_script("arguments[0].click();", reset_buster_btn)
+                        #     time.sleep(sleeptime)
+                            print("reset")
+                            
+                        #     capt_button = WebDriverWait(driver, 20).until(ExpectedConditions.element_to_be_clickable((By.XPATH ,'//*[@id="solver-button"]')))
+                        #     driver.execute_script("arguments[0].click();", capt_button)
+                        #     # webdriver.ActionChains(driver).click(capt_btn).perform()
+                        #     time.sleep(sleeptime)
+                            
+                        except:
+                            pass
+                        
+                        
+
+                        # twocaptcha_bypass()
+
+                    else:
+                        print("something")
+                        
+                except:
+                    pass
+                
                 time.sleep(1)
                 
                 try:
-                    # capt_btn = WebDriverWait(driver, 50).until(ExpectedConditions.element_to_be_clickable((By.XPATH ,'//*[@id="recaptcha-audio-button"]')))
-                    wait_xpath('/html/body/div[1]/div/div[3]/div[2]/div[1]/div[1]/div[4]')
-                    capt_btn = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[3]/div[2]/div[1]/div[1]/div[4]')
-                    capt_btn.click()
+                    # delay()
+                    errorsTry = driver.find_element(By.CLASS_NAME,'rc-doscaptcha-header-text')
+                    # driver.find_element('rc-doscaptcha-header-text')
+        
+                    reset_btn = driver.find_element(By.XPATH,"//*[@id='reset-button']")
+                    driver.execute_script("arguments[0].click();", reset_btn)
                     time.sleep(sleeptime)
-                except:
-                    # capt_btn = WebDriverWait(driver, 10).until(ExpectedConditions.element_to_be_clickable((By.XPATH ,'//*[@id="solver-button"]')))
-                    capt_btn = driver.find_element_by_xpath("//button[@id='solver-button']")
-                    driver.execute_script("arguments[0].click();", capt_btn)
-                    time.sleep(sleeptime)
+                    
+                    # beep sound
+                    # beep = lambda x: os.system("\a" * x)
+                    # beep(1)
 
+                    buster_bypass()
+
+                
+                except NoSuchElementException:
+                    pass
+
+       
                 driver.switch_to.default_content()  
-                time.sleep(sleeptime)
+             
 
             else:
                 print("captcha not found")
         else:
             print("no captcha")
- 
-        try:
-            wait_xpath('/html/body/div[6]/div/div/div/div[2]/button/i')
-            cross = driver.find_element(By.XPATH, '/html/body/div[6]/div/div/div/div[2]/button/i')
-            cross.click()
-            time.sleep(sleeptime)
-        except:
-            wait_xpath('/html/body/div[5]/div/div/div/div[2]/button/i')
-            cross = driver.find_element(By.XPATH, '/html/body/div[5]/div/div/div/div[2]/button/i')
-            driver.execute_script("arguments[0].click();", cross)
-            time.sleep(sleeptime)
-    
 
+        delay()
+        if check_exists_by_xpath(driver, '//h1[text()="Oops, something went wrong"]'):
+            sell_url = driver.current_url +"/sell";
+            driver.get(sell_url)
+            print("redirect to sell url")
+            time.sleep(sleeptime)
+        else:
+            print("url")
+        
+            try:
+                wait_xpath('/html/body/div[6]/div/div/div/div[2]/button/i')
+                cross = driver.find_element(By.XPATH, '/html/body/div[6]/div/div/div/div[2]/button/i')
+                cross.click()
+                time.sleep(sleeptime)
+            except:
+                wait_xpath('/html/body/div[5]/div/div/div/div[2]/button/i')
+                cross = driver.find_element(By.XPATH, '/html/body/div[5]/div/div/div/div[2]/button/i')
+                driver.execute_script("arguments[0].click();", cross)
+                time.sleep(sleeptime)
+    
+        time.sleep(2)
+            
         main_page = driver.current_window_handle
 
         if is_listing.get():
-            
-            wait_xpath('//a[text()="Sell"]')
-            sell = driver.find_element(By.XPATH, '//a[text()="Sell"]')
-            driver.execute_script("arguments[0].click();", sell)
-            time.sleep(sleeptime)
-	
+
+            if check_exists_by_xpath(driver, '//a[text()="Sell"]'):
+                wait_xpath('//a[text()="Sell"]')
+                sell = driver.find_element(By.XPATH, '//a[text()="Sell"]')
+                driver.execute_script("arguments[0].click();", sell)
+                time.sleep(sleeptime)
+            else:    
+                sell_url = driver.current_url +"/sell";
+                driver.get(sell_url)
+                print("sell button missing")
+                time.sleep(sleeptime)
+
+            if check_exists_by_xpath(driver, '//h1[text()="This page is lost."]'):
+                print("This page is lost.")
+      
+                back_url = driver.back()
+                driver.get(back_url)
+                print("go back url")
+                time.sleep(sleeptime)
+            else:
+                pass
+                
+                
             wait_css_selector("input[placeholder='Amount']")
             amount = driver.find_element(By.CSS_SELECTOR, "input[placeholder='Amount']")
             amount.send_keys(str(loop_price))
-            time.sleep(sleeptime)
+            time.sleep(0.8)
 
             #duration
             duration_date = duration_value.get()
 
             #if duration_date != 30:
+            # amount.send_keys(Keys.TAB * 8 + Keys.SPACE)
             amount.send_keys(Keys.TAB)
-            time.sleep(sleeptime)
+            # amount.send_keys(Keys.ENTER)
+            time.sleep(2)
 
             wait_xpath('//*[@role="dialog"]/div[1]/div[1]/div/input')
             select_durationday = driver.find_element(By.XPATH, '//*[@role="dialog"]/div[1]/div[1]/div/input')
@@ -475,11 +628,11 @@ def main_program_loop():
             if duration_date == 180 : 
                 range_button_location = '//span[normalize-space() = "6 months"]'     
 
-            wait.until(ExpectedConditions.presence_of_element_located(
-                (By.XPATH, range_button_location)))
-            ethereum_button = driver.find_element(
-                By.XPATH, range_button_location)
-            ethereum_button.click()
+            wait.until(ExpectedConditions.presence_of_element_located((By.XPATH, range_button_location)))
+            date_range_button = driver.find_element(By.XPATH, range_button_location)
+            time.sleep(sleeptime)
+            date_range_button.click()
+            time.sleep(sleeptime)
             select_durationday.send_keys(Keys.ENTER)
             time.sleep(sleeptime)
 
@@ -487,10 +640,12 @@ def main_program_loop():
             wait_css_selector("button[type='submit']")
             listing = driver.find_element(By.CSS_SELECTOR, "button[type='submit']")
             driver.execute_script("arguments[0].click();", listing)
-            time.sleep(12)
+            time.sleep(8)
+            # time.sleep(sleeptime)
             
             if is_polygon.get():
-                driver.find_element(By.XPATH, '//button[text()="Sign"]').click()
+                polygon_sign = WebDriverWait(driver, 10).until(ExpectedConditions.presence_of_element_located((By.XPATH, "//button[text()='Sign']" )))
+                driver.execute_script("arguments[0].click();", polygon_sign)
                 time.sleep(sleeptime)
 
             for handle in driver.window_handles:
@@ -521,23 +676,23 @@ def main_program_loop():
                     time.sleep(0.7)
             else:
                 try:
-                    driver.find_element(By.XPATH, "//*[@id='app-content']/div/div[2]/div/div[3]/div[1]").click()
-                    time.sleep(0.7)
-                except: 
                     wait_xpath("//div[@class='signature-request-message__scroll-button']")
                     scrollsign = driver.find_element(By.XPATH, "//div[@class='signature-request-message__scroll-button']")
                     driver.execute_script("arguments[0].click();", scrollsign)
-                    time.sleep(0.7)
+                    time.sleep(sleeptime)
+                except: 
+                    driver.find_element(By.XPATH, "//div[@class='signature-request-message__scroll-button']").click()
+                    time.sleep(sleeptime)
 
                 try:
                     wait_xpath('//*[@id="app-content"]/div/div[2]/div/div[4]/button[2]')
                     driver.find_element(By.XPATH, '//*[@id="app-content"]/div/div[2]/div/div[4]/button[2]').click()
-                    time.sleep(0.7)
+                    time.sleep(sleeptime)
                 except:
                     wait_xpath('//button[text()="Sign"]')
                     metasign = driver.find_element(By.XPATH, '//button[text()="Sign"]')
                     driver.execute_script("arguments[0].click();", metasign)
-                    time.sleep(0.7)
+                    time.sleep(sleeptime)
 
   
         #change control to main page
@@ -551,6 +706,15 @@ def main_program_loop():
     driver.get("https://www.opensea.io")
     
 
+
+unlockable_value = IntVar()
+unlockable_value.set(value=180)
+unlockable_content_frame = Frame(root, padx=0, pady=1)
+unlockable_content_frame.grid(row=11, column=1)
+unlockable_content_frame.label = Label(root, text="Unlockable Content:", anchor="nw", width=20, height=5 )
+tk.Checkbutton(unlockable_content_frame, text='Yes', var=is_unlockable,  width=58, anchor="w", command=save_unlockable).grid(row=0, column=1)
+tk.Text(unlockable_content_frame, width=48, height=3).grid(row=1, column=1, columnspan=2,pady=10)
+unlockable_content_frame.label.grid(row=11, column=0, padx=12, pady=2)
 
 duration_value = IntVar()
 duration_value.set(value=180)
@@ -569,7 +733,7 @@ isSensitive = tkinter.Checkbutton(root, text='Sensitive Content', var=is_sensiti
 isSensitive.grid(row=17, column=1)
 isCreate = tkinter.Checkbutton(root, text='Complete Listing', var=is_listing, width=49, anchor="w")
 isCreate.grid(row=19, column=1)
-isPolygon = tkinter.Checkbutton(root, text='Polygon Blockchain',  var=is_polygon, width=49, anchor="w")
+isPolygon = tkinter.Checkbutton(root, text='Polygon Blockchain (Auto switch)',  var=is_polygon, width=49, anchor="w")
 isPolygon.grid(row=20, column=1)
 upload_folder_input_button = tkinter.Button(root, width=50, height=1,  text="Add NFTs Upload Folder", command=upload_folder_input)
 upload_folder_input_button.grid(row=21, column=1, padx=2)
@@ -580,8 +744,8 @@ button_save.grid(row=22, column=1, pady=2)
 button_start = tkinter.Button(root, width=44, height=2, bg="green", fg="white", text="Start", command=main_program_loop)
 button_start['font'] = font.Font(size=10, weight='bold')
 button_start.grid(row=25, column=1, pady=2)
-footer = tkinter.Button(root, height=3, width=60, text='Do you you want to show support? \n Now you have the chance to buy me a coffee. Thank you.',  command=coffeeURL, relief=GROOVE  )
-footer.grid(row=31, columnspan=2, padx=31, pady=31)
+# footer = tkinter.Button(root, height=3, width=60, text='Do you you want to show support? \n Now you have the chance to buy me a coffee. Thank you.',  command=coffeeURL, relief=GROOVE  )
+# footer.grid(row=31, columnspan=2, padx=31, pady=31)
 
 try:
     with open(save_file_path(), "rb") as infile:
@@ -589,6 +753,7 @@ try:
         global upload_path
         Name_change_img_folder_button(new_dict[0])
         upload_path = new_dict[0]
+        print(new_dict[8])
 except FileNotFoundError:
     pass
 #####BUTTON ZONE END#######
